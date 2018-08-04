@@ -1,0 +1,10 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+
+CREATE VIEW [rpt].[vw_DimTicketClass] AS (SELECT * FROM dbo.DimTicketClass (NOLOCK) WHERE IsDeleted = 0) 
+
+
+GO

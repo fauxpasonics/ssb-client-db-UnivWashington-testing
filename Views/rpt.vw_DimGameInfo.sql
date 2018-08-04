@@ -1,0 +1,10 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+CREATE VIEW [rpt].[vw_DimGameInfo] AS (SELECT * FROM dbo.DimGameInfo (NOLOCK)) 
+
+
+
+GO

@@ -1,0 +1,69 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+CREATE PROCEDURE [etl].[TM_LoadArchiveStageTable]
+(
+	@TableSource NVARCHAR(255),
+	@TableDest NVARCHAR(255)
+)
+AS
+BEGIN
+
+
+
+--DECLARE @TableSource NVARCHAR(255) = 'tmarc.RawFile__uwashington1314FULLF_arena'
+--DECLARE @TableDest NVARCHAR(255) = 'tmarc.arena'
+DECLARE @ColumnList NVARCHAR(max) = ''
+DECLARE @ManualColumnListSource NVARCHAR(MAX) = ''
+DECLARE @ManualColumnListDest NVARCHAR(MAX) = ''
+
+SELECT a.COLUMN_NAME, b.COLUMN_NAME
+FROM (
+	SELECT *
+	FROM INFORMATION_SCHEMA.COLUMNS
+	WHERE TABLE_SCHEMA = PARSENAME(@TableDest,2)
+	AND TABLE_NAME = PARSENAME(@TableDest,1)
+) a
+FULL OUTER JOIN (
+	SELECT *
+	FROM INFORMATION_SCHEMA.COLUMNS
+	WHERE TABLE_SCHEMA = PARSENAME(@TableSource,2)
+	AND TABLE_NAME = PARSENAME(@TableSource,1)
+) b ON a.COLUMN_NAME = b.COLUMN_NAME
+WHERE a.COLUMN_NAME IS NULL OR b.COLUMN_NAME IS NULL
+
+
+SELECT @ColumnList = @ColumnList + '[' + a.COLUMN_NAME + '], '
+FROM (
+	SELECT *
+	FROM INFORMATION_SCHEMA.COLUMNS
+	WHERE TABLE_SCHEMA = PARSENAME(@TableDest,2)
+	AND TABLE_NAME = PARSENAME(@TableDest,1)
+	AND COLUMN_NAME NOT IN ('ETL__ID')
+) a
+INNER JOIN (
+	SELECT *
+	FROM INFORMATION_SCHEMA.COLUMNS
+	WHERE TABLE_SCHEMA = PARSENAME(@TableSource,2)
+	AND TABLE_NAME = PARSENAME(@TableSource,1)
+	AND COLUMN_NAME NOT IN ('ETL__ID')
+) b ON a.COLUMN_NAME = b.COLUMN_NAME
+
+SET @ColumnList = LEFT(@ColumnList, (LEN(@ColumnList) - 1))
+
+DECLARE @SQL NVARCHAR(MAX) = '
+
+INSERT INTO ' + @TableDest + ' ( ' + CASE WHEN @ManualColumnListDest = '' THEN '' ELSE @ManualColumnListDest + ', ' END + @ColumnList + ' )
+SELECT ' + CASE WHEN @ManualColumnListSource = '' THEN '' ELSE @ManualColumnListSource + ', ' END + @ColumnList + '
+FROM ' + @TableSource
+
+
+PRINT @SQL
+EXEC (@SQL)
+
+
+
+
+END
+GO

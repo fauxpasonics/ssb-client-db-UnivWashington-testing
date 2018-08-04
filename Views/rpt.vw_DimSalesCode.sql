@@ -1,0 +1,10 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+
+CREATE VIEW [rpt].[vw_DimSalesCode] AS (SELECT * FROM dbo.DimSalesCode (NOLOCK) WHERE IsDeleted = 0) 
+
+
+GO

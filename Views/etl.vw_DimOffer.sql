@@ -1,0 +1,8 @@
+SET QUOTED_IDENTIFIER ON
+GO
+SET ANSI_NULLS ON
+GO
+
+
+CREATE VIEW [etl].[vw_DimOffer] AS ( SELECT * FROM dbo.DimOffer_V2 )
+GO

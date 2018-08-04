@@ -1,0 +1,2 @@
+CREATE USER [svcssbrp] WITHOUT LOGIN
+GO
